@@ -16,9 +16,14 @@ namespace PolygonDraw
     /// </summary>
     public partial class MainWindow : Window
     {
+        MainViewModel mainViewModel = new MainViewModel();
         public MainWindow()
         {
             InitializeComponent();
+            this.DataContext = this.mainViewModel;
+            this.MouseMove += this.mainViewModel.OnMouseMove;
         }
     }
+
+    
 }
