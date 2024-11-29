@@ -27,7 +27,21 @@ namespace PolygonDraw
             this.DataContext = this.mainViewModel;
             this.MouseMove += this.mainViewModel.OnMouseMove;
             this.MouseLeftButtonDown += this.mainViewModel.OnMouseLeftClick;
-        }
+            this.KeyDown += OnKeyDown;
 
+        }
+        private void OnKeyDown(object sender, KeyEventArgs e)
+        {
+            if (Keyboard.Modifiers == ModifierKeys.Control && e.Key == Key.Z)
+            {
+                // Ctrl+Z was pressed
+                this.mainViewModel.Undo();
+            }
+            else if(Keyboard.Modifiers == ModifierKeys.Control && e.Key == Key.Y)
+            {
+                // Ctrl+Y was pressed
+                this.mainViewModel.Redo();
+            }
+        }
     }
 }

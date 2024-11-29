@@ -18,16 +18,22 @@ namespace PolygonDraw
         [ObservableProperty]
         string? mousePosition;
 
-        public ObservableCollection<UIElement> lines { get; set; }
+        public ObservableCollection<Line> lines { get; set; }
+        public ObservableCollection<Line> removedLines { get; set; }
 
         [ObservableProperty]
         public UIElement previewLine;
 
         Stack<Polygon>? polygons = new Stack<Polygon>();
 
-        bool currentlyEditing = false;
+        bool currentlyEditing = false; //to track 
         private Timer clickTimer;
         private bool isDoubleClick;
+
+        bool clicked = false;
+
+        private Stack<Point> _displayedPoints = new Stack<Point>();
+        private Stack<Point> _removedPoints = new Stack<Point>();
 
 
         public MainViewModel()
@@ -38,31 +44,52 @@ namespace PolygonDraw
                 AutoReset = false
             };
             clickTimer.Elapsed += OnSingleClickTimeout;
-            lines = new ObservableCollection<UIElement>();
-            AddLine(10, 10, 100, 100, Brushes.Black, 2);
+            lines = new ObservableCollection<Line>();
+            removedLines = new ObservableCollection<Line>();
         }
 
         public void OnMouseMove(object sender, MouseEventArgs e)
         {
-            if(polygons.Count > 0)
+
+            if (_displayedPoints.Count > 0)
             {
-                if(currentlyEditing) 
+                if (currentlyEditing)
                 {
-                    Polygon currentPolygon = polygons.Peek();
-                    Point lastPoint = currentPolygon.GetLastPoint();
+                    Point lastPoint = _displayedPoints.Peek();
                     Point currentPosition = Mouse.GetPosition(Application.Current.MainWindow);
-                    previewLine = new Line
+                    if (clicked)
                     {
-                        X1 = lastPoint.X,
-                        Y1 = lastPoint.Y,
-                        X2 = currentPosition.X,
-                        Y2 = currentPosition.Y,
-                        Stroke = Brushes.Black,
-                        StrokeThickness = 2,
-                        Visibility = Visibility.Visible
-                    };
+                        AddLine(lastPoint.X, lastPoint.Y, currentPosition.X, currentPosition.Y, Brushes.Black, 2);
+                        clicked = false;
+                    }
+                    else
+                    {
+                        Line line = lines.Last();
+                        line.X2 = currentPosition.X;
+                        line.Y2 = currentPosition.Y;
+                    }
+                        
                 }
             }
+            //if(polygons.Count > 0)
+            //{
+            //    if(currentlyEditing) 
+            //    {
+            //        Polygon currentPolygon = polygons.Peek();
+            //        Point lastPoint = currentPolygon.GetLastPoint();
+            //        Point currentPosition = Mouse.GetPosition(Application.Current.MainWindow);
+            //        previewLine = new Line
+            //        {
+            //            X1 = lastPoint.X,
+            //            Y1 = lastPoint.Y,
+            //            X2 = currentPosition.X,
+            //            Y2 = currentPosition.Y,
+            //            Stroke = Brushes.Black,
+            //            StrokeThickness = 2,
+            //            Visibility = Visibility.Visible
+            //        };
+            //    }
+            //}
         }
 
         public void OnClick()
@@ -73,16 +100,20 @@ namespace PolygonDraw
                 MousePosition = $"X: {currentPosition.X}, Y: {currentPosition.Y}";
                 if (currentlyEditing)
                 {
-                    Polygon currentPolygon = polygons.Peek();
-                    Point lastPoint = currentPolygon.GetLastPoint();
-                    currentPolygon.AddPoint(currentPosition);
-                    AddLine(lastPoint.X, lastPoint.Y, currentPosition.X, currentPosition.Y, Brushes.Black, 2);
+                    //Point lastPoint = currentPolygon.GetLastPoint();
+                    _displayedPoints.Push(currentPosition);
+                    //Line line = lines.Last();
+                    //line.X2 = currentPosition.X;
+                    //line.Y2 = currentPosition.Y;
+                    clicked = true;
                 }
                 else
                 {
-                    polygons.Push(new Polygon(currentPosition));
+                    _displayedPoints.Push(currentPosition);
                     currentlyEditing = true;
+                    clicked = true;
                 }
+                removedLines.Clear();
             });
         }
 
@@ -90,23 +121,31 @@ namespace PolygonDraw
         {
             MousePosition = "Double Clicked";
             currentlyEditing = false;
+            lines.RemoveAt(lines.Count - 1);
         }
 
         public void Undo()
         {
-            Polygon currentPolygon = polygons.Peek();
-            if (currentPolygon != null)
+            //if (_displayedPoints.TryPop(out Point lastAddedPoint))
+            //{
+            //    _removedPoints.Push(lastAddedPoint);
+            //    lines.RemoveAt(lines.Count-1);
+            //}
+            if(lines.Count > 0)
             {
-                currentPolygon.Undo();
+                removedLines.Add(popLines(lines));
             }
+                
+                
         }
 
         public void Redo()
         {
-            Polygon currentPolygon = polygons.Peek();
-            if (currentPolygon != null)
+            //if (_removedPoints.TryPop(out Point lastAddedPoint))
+            //    _displayedPoints.Push(lastAddedPoint);
+            if (removedLines.Count > 0)
             {
-                currentPolygon.Redo();
+                lines.Add(popLines(removedLines));
             }
         }
 
@@ -147,6 +186,13 @@ namespace PolygonDraw
             };
 
             lines.Add(line);
+        }
+
+        private Line popLines(ObservableCollection<Line> lines)
+        {
+            Line deletedLine = lines.ElementAt(lines.Count - 1);
+            lines.Remove(deletedLine);
+            return deletedLine;
         }
     }
 
