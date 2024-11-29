@@ -22,11 +22,5 @@
 				</ItemsControl.ItemContainerStyle>
 			</ItemsControl>
 		</Canvas>
-		
-		
-		<TextBlock Text="{Binding MousePosition}"
-				   HorizontalAlignment="Center"
-				   VerticalAlignment="Center"
-				   FontSize="20"/>
     </Grid>
 </Window>

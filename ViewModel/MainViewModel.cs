@@ -5,11 +5,9 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using CommunityToolkit.Mvvm.ComponentModel;
-using System.Collections.Generic;
 using Point = System.Windows.Point;
 using Timer = System.Timers.Timer;
 using System.Collections.ObjectModel;
-using System.Windows.Ink;
 
 namespace PolygonDraw
 {
@@ -24,9 +22,7 @@ namespace PolygonDraw
         [ObservableProperty]
         public UIElement previewLine;
 
-        Stack<Polygon>? polygons = new Stack<Polygon>();
-
-        bool currentlyEditing = false; //to track 
+        bool currentlyEditing = false;
         private Timer clickTimer;
         private bool isDoubleClick;
 
@@ -40,7 +36,7 @@ namespace PolygonDraw
         {
             clickTimer = new Timer
             {
-                Interval = 150,
+                Interval = 180,
                 AutoReset = false
             };
             clickTimer.Elapsed += OnSingleClickTimeout;
@@ -50,7 +46,6 @@ namespace PolygonDraw
 
         public void OnMouseMove(object sender, MouseEventArgs e)
         {
-
             if (_displayedPoints.Count > 0)
             {
                 if (currentlyEditing)
@@ -68,28 +63,8 @@ namespace PolygonDraw
                         line.X2 = currentPosition.X;
                         line.Y2 = currentPosition.Y;
                     }
-                        
                 }
             }
-            //if(polygons.Count > 0)
-            //{
-            //    if(currentlyEditing) 
-            //    {
-            //        Polygon currentPolygon = polygons.Peek();
-            //        Point lastPoint = currentPolygon.GetLastPoint();
-            //        Point currentPosition = Mouse.GetPosition(Application.Current.MainWindow);
-            //        previewLine = new Line
-            //        {
-            //            X1 = lastPoint.X,
-            //            Y1 = lastPoint.Y,
-            //            X2 = currentPosition.X,
-            //            Y2 = currentPosition.Y,
-            //            Stroke = Brushes.Black,
-            //            StrokeThickness = 2,
-            //            Visibility = Visibility.Visible
-            //        };
-            //    }
-            //}
         }
 
         public void OnClick()
@@ -97,14 +72,9 @@ namespace PolygonDraw
             Application.Current.Dispatcher.Invoke(() =>
             {
                 Point currentPosition = Mouse.GetPosition(Application.Current.MainWindow);
-                MousePosition = $"X: {currentPosition.X}, Y: {currentPosition.Y}";
                 if (currentlyEditing)
                 {
-                    //Point lastPoint = currentPolygon.GetLastPoint();
                     _displayedPoints.Push(currentPosition);
-                    //Line line = lines.Last();
-                    //line.X2 = currentPosition.X;
-                    //line.Y2 = currentPosition.Y;
                     clicked = true;
                 }
                 else
@@ -126,23 +96,14 @@ namespace PolygonDraw
 
         public void Undo()
         {
-            //if (_displayedPoints.TryPop(out Point lastAddedPoint))
-            //{
-            //    _removedPoints.Push(lastAddedPoint);
-            //    lines.RemoveAt(lines.Count-1);
-            //}
             if(lines.Count > 0)
             {
                 removedLines.Add(popLines(lines));
             }
-                
-                
         }
 
         public void Redo()
         {
-            //if (_removedPoints.TryPop(out Point lastAddedPoint))
-            //    _displayedPoints.Push(lastAddedPoint);
             if (removedLines.Count > 0)
             {
                 lines.Add(popLines(removedLines));
