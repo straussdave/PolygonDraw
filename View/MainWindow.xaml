@@ -7,9 +7,23 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-		<Canvas Height="400" Width="800">
-			
+		<Canvas x:Name="MainCanvas" Background="White">
+			<ItemsControl ItemsSource="{Binding lines}">
+				<ItemsControl.ItemsPanel>
+					<ItemsPanelTemplate>
+						<Canvas />
+					</ItemsPanelTemplate>
+				</ItemsControl.ItemsPanel>
+				<ItemsControl.ItemContainerStyle>
+					<Style>
+						<Setter Property="Canvas.Left" Value="0" />
+						<Setter Property="Canvas.Top" Value="0" />
+					</Style>
+				</ItemsControl.ItemContainerStyle>
+			</ItemsControl>
 		</Canvas>
+		
+		
 		<TextBlock Text="{Binding MousePosition}"
 				   HorizontalAlignment="Center"
 				   VerticalAlignment="Center"

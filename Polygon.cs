@@ -44,5 +44,10 @@ namespace PolygonDraw
         {
             _displayedPoints.Push(point);
         }
+
+        public Point GetLastPoint()
+        {
+            return _displayedPoints.Peek();
+        }
     }
 }
