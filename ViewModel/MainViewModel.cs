@@ -89,9 +89,11 @@ namespace PolygonDraw
 
         public void OnDoubleClick()
         {
-            MousePosition = "Double Clicked";
+            if(currentlyEditing)
+            {
+                lines.RemoveAt(lines.Count - 1);
+            }
             currentlyEditing = false;
-            lines.RemoveAt(lines.Count - 1);
         }
 
         public void Undo()
