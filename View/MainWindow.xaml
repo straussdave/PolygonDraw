@@ -8,7 +8,7 @@
         Title="MainWindow" Height="450" Width="800">
     <Grid>
 		<Canvas x:Name="MainCanvas" Background="White">
-			<ItemsControl ItemsSource="{Binding lines}">
+            <ItemsControl ItemsSource="{Binding Lines}">
 				<ItemsControl.ItemsPanel>
 					<ItemsPanelTemplate>
 						<Canvas />

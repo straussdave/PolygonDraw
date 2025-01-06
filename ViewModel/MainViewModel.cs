@@ -16,17 +16,21 @@ namespace PolygonDraw
         [ObservableProperty]
         string? mousePosition;
 
-        public ObservableCollection<Line> lines { get; set; }
+        //public List<ObservableCollection<Line>> Polygons { get; set; }
+        public ObservableCollection<Line> Lines { get; set; }
+        public Line? PreviewLine { get; set; }
+
         public ObservableCollection<Line> removedLines { get; set; }
 
-        [ObservableProperty]
-        public UIElement previewLine;
+        //public int numberOfFinishedPolygons = 0;
+
+        
 
         bool currentlyEditing = false;
         private Timer clickTimer;
         private bool isDoubleClick;
 
-        bool clicked = false;
+        bool clicked = false; //clicked is used to check to do the preview line just once
 
         private Stack<Point> _displayedPoints = new Stack<Point>();
         private Stack<Point> _removedPoints = new Stack<Point>();
@@ -40,7 +44,10 @@ namespace PolygonDraw
                 AutoReset = false
             };
             clickTimer.Elapsed += OnSingleClickTimeout;
-            lines = new ObservableCollection<Line>();
+            // Beispiel-Linien hinzufügen
+            Lines = new ObservableCollection<Line>();
+
+            PreviewLine = null;
             removedLines = new ObservableCollection<Line>();
         }
 
@@ -54,14 +61,19 @@ namespace PolygonDraw
                     Point currentPosition = Mouse.GetPosition(Application.Current.MainWindow);
                     if (clicked)
                     {
+                        //clicked is used to check to do the preview line just once
                         AddLine(lastPoint.X, lastPoint.Y, currentPosition.X, currentPosition.Y, Brushes.Black, 2);
+                        PreviewLine = Lines.Last();
                         clicked = false;
                     }
                     else
                     {
-                        Line line = lines.Last();
-                        line.X2 = currentPosition.X;
-                        line.Y2 = currentPosition.Y;
+                        if(Lines.Count > 0)
+                        {
+                            Line line = Lines.Last();
+                            line.X2 = currentPosition.X;
+                            line.Y2 = currentPosition.Y;
+                        }
                     }
                 }
             }
@@ -72,44 +84,70 @@ namespace PolygonDraw
             Application.Current.Dispatcher.Invoke(() =>
             {
                 Point currentPosition = Mouse.GetPosition(Application.Current.MainWindow);
-                if (currentlyEditing)
+                if (!currentlyEditing)
                 {
-                    _displayedPoints.Push(currentPosition);
-                    clicked = true;
-                }
-                else
-                {
-                    _displayedPoints.Push(currentPosition);
                     currentlyEditing = true;
-                    clicked = true;
                 }
+
+                _displayedPoints.Push(currentPosition);
+                clicked = true;
+                PreviewLine = null;
                 removedLines.Clear();
             });
         }
 
         public void OnDoubleClick()
         {
-            if(currentlyEditing)
+            if (currentlyEditing)
             {
-                lines.RemoveAt(lines.Count - 1);
+                if (Lines.Count > 0)
+                {
+                    Lines.RemoveAt(Lines.Count - 1);
+                }
+                //Polygons.Add(Lines);
+                //Lines = new ObservableCollection<Line>();
+                //numberOfFinishedPolygons++;
+                
             }
-            currentlyEditing = false;
+            PreviewLine = null;
+            currentlyEditing = false; //firstPoint of the newest Polygon was already set
         }
 
         public void Undo()
         {
-            if(lines.Count > 0)
+            if(Lines.Count > 0)
             {
-                removedLines.Add(popLines(lines));
+                if(PreviewLine != null)
+                {
+                    popLines(Lines);
+                    PreviewLine = null;
+                }
+                if(currentlyEditing == false)
+                {
+
+                }
+                removedLines.Add(popLines(Lines));
+                removeLastDisplayedPoint();
             }
+            clicked = true;
+            currentlyEditing = true;
         }
 
         public void Redo()
         {
+            if (PreviewLine != null)
+            {
+                popLines(Lines);
+                PreviewLine = null;
+            }
             if (removedLines.Count > 0)
             {
-                lines.Add(popLines(removedLines));
+                Lines.Add(popLines(removedLines));
+                removeLastRemovedPoint();
             }
+            clicked = true;
+            currentlyEditing = true;
+
         }
 
         public void OnMouseLeftClick(object sender, MouseEventArgs e)
@@ -148,14 +186,37 @@ namespace PolygonDraw
                 Visibility = Visibility.Visible
             };
 
-            lines.Add(line);
+            Lines.Add(line);
         }
 
         private Line popLines(ObservableCollection<Line> lines)
         {
-            Line deletedLine = lines.ElementAt(lines.Count - 1);
-            lines.Remove(deletedLine);
-            return deletedLine;
+            if(lines.Count > 0)
+            {
+                Line deletedLine = lines.ElementAt(lines.Count - 1);
+                lines.Remove(deletedLine);
+                return deletedLine;
+            }
+            
+            return null;
+        }
+
+        private void removeLastDisplayedPoint()
+        {
+            if (_displayedPoints.Count > 0)
+            {
+                Point point = _displayedPoints.Pop();
+                _removedPoints.Push(point);
+            }
+        }
+
+        private void removeLastRemovedPoint()
+        {
+            if (_removedPoints.Count > 0)
+            {
+                Point point = _removedPoints.Pop();
+                _displayedPoints.Push(point);
+            }
         }
     }
 
