@@ -6,7 +6,7 @@ using Point = System.Windows.Point;
 
 namespace PolygonDraw
 {
-    public class Polygon2
+    public class Polygon
     {
         public ObservableCollection<Line> Lines { get; set; }
         private Stack<Line> _removedLines;
@@ -17,7 +17,7 @@ namespace PolygonDraw
         bool startPointIsVisible = false;
         bool addNewPreviewLineOnMouseMove = false; //addNewPreviewLineOnMouseMove is used to check to do the preview line just once
 
-        public Polygon2()
+        public Polygon()
         {
             Lines = new ObservableCollection<Line>();
             _removedLines = new Stack<Line>();

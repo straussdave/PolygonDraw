@@ -11,9 +11,9 @@ namespace PolygonDraw
 {
     public partial class MainViewModel : ObservableObject
     {
-        public ObservableCollection<Polygon2> Polygons { get; set; } = new ObservableCollection<Polygon2>();
-        private Polygon2 _currentPolygon;
-        private Stack<Polygon2> _removedPolygons;
+        public ObservableCollection<Polygon> Polygons { get; set; } = new ObservableCollection<Polygon>();
+        private Polygon _currentPolygon;
+        private Stack<Polygon> _removedPolygons;
         
         private Timer clickTimer;
         private bool isDoubleClick;
@@ -27,8 +27,8 @@ namespace PolygonDraw
             };
             clickTimer.Elapsed += OnSingleClickTimeout;
 
-            _currentPolygon = new Polygon2();
-            _removedPolygons = new Stack<Polygon2>();
+            _currentPolygon = new Polygon();
+            _removedPolygons = new Stack<Polygon>();
             Polygons.Add(_currentPolygon);
 
         }
@@ -43,7 +43,7 @@ namespace PolygonDraw
         {
             Point currentPosition = Mouse.GetPosition(Application.Current.MainWindow);
             _currentPolygon.OnDoubleClick(currentPosition);
-            _currentPolygon = new Polygon2();
+            _currentPolygon = new Polygon();
             Polygons.Add(_currentPolygon);
         }
 
