@@ -22,15 +22,16 @@ namespace PolygonDraw
 
         public ObservableCollection<Line> removedLines { get; set; }
 
-        //public int numberOfFinishedPolygons = 0;
+        public int numberOfFinishedPolygons = 0;
 
         
 
-        bool currentlyEditing = false;
+        bool startPointIsVisible = false;
         private Timer clickTimer;
         private bool isDoubleClick;
 
-        bool clicked = false; //clicked is used to check to do the preview line just once
+       
+        private bool addNewPreviewLineOnMouseMove = false; //addNewPreviewLineOnMouseMove is used to check to do the preview line just once
 
         private Stack<Point> _displayedPoints = new Stack<Point>();
         private Stack<Point> _removedPoints = new Stack<Point>();
@@ -55,16 +56,16 @@ namespace PolygonDraw
         {
             if (_displayedPoints.Count > 0)
             {
-                if (currentlyEditing)
+                if (startPointIsVisible)
                 {
                     Point lastPoint = _displayedPoints.Peek();
                     Point currentPosition = Mouse.GetPosition(Application.Current.MainWindow);
-                    if (clicked)
+                    if (addNewPreviewLineOnMouseMove)
                     {
                         //clicked is used to check to do the preview line just once
                         AddLine(lastPoint.X, lastPoint.Y, currentPosition.X, currentPosition.Y, Brushes.Black, 2);
                         PreviewLine = Lines.Last();
-                        clicked = false;
+                        addNewPreviewLineOnMouseMove = false;
                     }
                     else
                     {
@@ -84,13 +85,13 @@ namespace PolygonDraw
             Application.Current.Dispatcher.Invoke(() =>
             {
                 Point currentPosition = Mouse.GetPosition(Application.Current.MainWindow);
-                if (!currentlyEditing)
+                if (!startPointIsVisible)
                 {
-                    currentlyEditing = true;
+                    startPointIsVisible = true;
                 }
 
                 _displayedPoints.Push(currentPosition);
-                clicked = true;
+                addNewPreviewLineOnMouseMove = true;
                 PreviewLine = null;
                 removedLines.Clear();
             });
@@ -98,7 +99,7 @@ namespace PolygonDraw
 
         public void OnDoubleClick()
         {
-            if (currentlyEditing)
+            if (startPointIsVisible)
             {
                 if (Lines.Count > 0)
                 {
@@ -106,11 +107,12 @@ namespace PolygonDraw
                 }
                 //Polygons.Add(Lines);
                 //Lines = new ObservableCollection<Line>();
-                //numberOfFinishedPolygons++;
+                numberOfFinishedPolygons++;
                 
             }
             PreviewLine = null;
-            currentlyEditing = false; //firstPoint of the newest Polygon was already set
+            startPointIsVisible = false; //firstPoint of the newest Polygon was already set
+            addNewPreviewLineOnMouseMove = false;
         }
 
         public void Undo()
@@ -121,16 +123,24 @@ namespace PolygonDraw
                 {
                     popLines(Lines);
                     PreviewLine = null;
+                    if (Lines.Count + numberOfFinishedPolygons == _displayedPoints.Count())
+                    {
+                        removedLines.Add(popLines(Lines));
+                    }
                 }
-                if(currentlyEditing == false)
+                else
                 {
-
+                    if (Lines.Count + numberOfFinishedPolygons + 1 == _displayedPoints.Count())
+                    {
+                        removedLines.Add(popLines(Lines));
+                    }
                 }
-                removedLines.Add(popLines(Lines));
-                removeLastDisplayedPoint();
+                
+                
+                removeOneDisplayedPoint();
             }
-            clicked = true;
-            currentlyEditing = true;
+            addNewPreviewLineOnMouseMove = true;
+            startPointIsVisible = true;
         }
 
         public void Redo()
@@ -143,10 +153,10 @@ namespace PolygonDraw
             if (removedLines.Count > 0)
             {
                 Lines.Add(popLines(removedLines));
-                removeLastRemovedPoint();
+                addOneRemovedPoint();
             }
-            clicked = true;
-            currentlyEditing = true;
+            addNewPreviewLineOnMouseMove = true;
+            startPointIsVisible = true;
 
         }
 
@@ -201,7 +211,7 @@ namespace PolygonDraw
             return null;
         }
 
-        private void removeLastDisplayedPoint()
+        private void removeOneDisplayedPoint()
         {
             if (_displayedPoints.Count > 0)
             {
@@ -210,7 +220,7 @@ namespace PolygonDraw
             }
         }
 
-        private void removeLastRemovedPoint()
+        private void addOneRemovedPoint()
         {
             if (_removedPoints.Count > 0)
             {

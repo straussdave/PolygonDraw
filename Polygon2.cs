@@ -109,7 +109,7 @@ namespace PolygonDraw
             {
                 //StartPoint gets added
                 addOneRemovedPoint();
-                addNewPreviewLineOnMouseMove = true;
+
                 //startPointIsVisible = true;
                 return true;
             }

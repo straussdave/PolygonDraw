@@ -78,12 +78,14 @@ namespace PolygonDraw
             }
             else
             {
-                _removedPolygons.Push(_currentPolygon);
-                Polygons.Remove(_currentPolygon);
-                if(Polygons.Count > 0)
+                
+                if (Polygons.Count > 1)
                 {
+                    _removedPolygons.Push(_currentPolygon);
+                    Polygons.Remove(_currentPolygon);
                     _currentPolygon = Polygons.Last();
                 }
+
             }
             
         }
