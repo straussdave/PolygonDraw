@@ -6,9 +6,37 @@
         xmlns:local="clr-namespace:PolygonDraw"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
+
+
     <Grid>
+        <!-- Outer ItemsControl für Polygon2 -->
+        <ItemsControl ItemsSource="{Binding Polygons}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Canvas Background="White" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+
+            <!-- Inner ItemsControl für Lines innerhalb von Polygon2 -->
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <!-- Inner ItemsControl für Lines -->
+                    <ItemsControl ItemsSource="{Binding Lines}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <Canvas />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </Grid>
+</Window>
+<!--
+<Grid>
 		<Canvas x:Name="MainCanvas" Background="White">
-            <ItemsControl ItemsSource="{Binding Lines}">
+            <ItemsControl ItemsSource="{Binding Polygons}">
 				<ItemsControl.ItemsPanel>
 					<ItemsPanelTemplate>
 						<Canvas />
@@ -23,4 +51,4 @@
 			</ItemsControl>
 		</Canvas>
     </Grid>
-</Window>
+</Window> -->

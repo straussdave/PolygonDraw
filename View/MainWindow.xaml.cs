@@ -19,7 +19,7 @@ namespace PolygonDraw
     public partial class MainWindow : Window
     {
 
-        MainViewModel mainViewModel = new MainViewModel();
+        MainViewModel2 mainViewModel = new MainViewModel2();
         public MainWindow()
         {
             InitializeComponent();
