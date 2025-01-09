@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.ObjectModel;
 using System.Windows.Media;
 using System.Windows;
 using System.Windows.Shapes;
 using Point = System.Windows.Point;
-using System.Windows.Input;
 
 namespace PolygonDraw
 {
@@ -42,8 +36,6 @@ namespace PolygonDraw
                     popLines(Lines);
                     _previewLine = null;
                 }
-                //else
-                //{
                 Line removedLine = popLines(Lines);
                 if(removedLine != null)
                 {
@@ -51,18 +43,12 @@ namespace PolygonDraw
                 }
                 
                 removeOneDisplayedPoint();
-                //}
                 addNewPreviewLineOnMouseMove = true;
-                /*if (Lines.Count == 0)
-                {
-                    return false;
-                }*/
                 return true;
             }
             else
             {
                 addNewPreviewLineOnMouseMove = true;
-                //startPointIsVisible = false;
                 return false; //last line got removed
             }
             
@@ -88,20 +74,12 @@ namespace PolygonDraw
                         Lines.Add(lastRemovedLine);
                         addOneRemovedPoint();
                         addNewPreviewLineOnMouseMove = true;
-                        //startPointIsVisible = true;
-
-                    }
-                    else
-                    {
-                        Console.WriteLine("hey");
                     }
                     return true;
                 }
                 else
                 {
-                    
                     addNewPreviewLineOnMouseMove = true;
-                    //startPointIsVisible = false;
                     return false;
                 }
             }
@@ -109,8 +87,6 @@ namespace PolygonDraw
             {
                 //StartPoint gets added
                 addOneRemovedPoint();
-
-                //startPointIsVisible = true;
                 return true;
             }
             
@@ -134,16 +110,8 @@ namespace PolygonDraw
         public void OnDoubleClick(Point currentPosition)
         {
             OnClick(currentPosition);
-            /*if (startPointIsVisible)
-            {
-                if (Lines.Count > 0)
-                {
-                    Lines.RemoveAt(Lines.Count - 1);
-                }
-            }*/
             _previewLine = null;
             addNewPreviewLineOnMouseMove = true;
-            //startPointIsVisible = true; //firstPoint of the newest Polygon was already set
         }
 
         public void OnMouseMove(Point currentPosition)
